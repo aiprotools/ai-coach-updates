@@ -8,7 +8,6 @@ APP_NAME="AI Coach"
 echo "AI Coach Beta — Installer"
 echo "Lade aktuelle Beta-Version..."
 
-# Fetch latest pre-release tag (first entry from /releases includes pre-releases)
 VERSION=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases" \
   | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": "\(.*\)".*/\1/')
 if [ -z "$VERSION" ]; then
@@ -34,7 +33,8 @@ TMP_DMG="/tmp/${DMG_NAME}"
 curl -L --progress-bar "$URL" -o "$TMP_DMG"
 
 echo "Mounte DMG..."
-MOUNT_POINT=$(hdiutil attach "$TMP_DMG" -nobrowse -noautoopen | grep -E '/Volumes/' | awk '{print $NF}')
+# hdiutil gibt Tab-separierte Ausgabe — awk -F'\t' verhindert Split bei Leerzeichen im Volume-Namen
+MOUNT_POINT=$(hdiutil attach "$TMP_DMG" -nobrowse -noautoopen | grep '/Volumes' | awk -F'\t' '{print $NF}')
 
 echo "Installiere nach ${INSTALL_DIR}..."
 if [ -d "${INSTALL_DIR}/${APP_NAME}.app" ]; then
