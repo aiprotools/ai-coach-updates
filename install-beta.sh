@@ -33,9 +33,21 @@ TMP_DMG="/tmp/${DMG_NAME}"
 curl -L --progress-bar "$URL" -o "$TMP_DMG"
 
 echo "Mounte DMG..."
-# hdiutil gibt Tab-separierte Ausgabe — awk -F'\t' verhindert Split bei Leerzeichen im Volume-Namen
-MOUNT_POINT=$(hdiutil attach "$TMP_DMG" -nobrowse -noautoopen | grep '/Volumes' | awk -F'\t' '{print $NF}')
+MOUNT_POINT=$(hdiutil attach "$TMP_DMG" -nobrowse -noautoopen -plist | python3 -c "
+import sys, plistlib
+d = plistlib.load(sys.stdin.buffer)
+for e in d.get('system-entities', []):
+    if 'mount-point' in e:
+        print(e['mount-point'])
+        break
+")
 
+if [ -z "$MOUNT_POINT" ]; then
+  echo "Fehler: DMG konnte nicht gemountet werden." >&2
+  exit 1
+fi
+
+echo "Gemountet unter: $MOUNT_POINT"
 echo "Installiere nach ${INSTALL_DIR}..."
 if [ -d "${INSTALL_DIR}/${APP_NAME}.app" ]; then
   rm -rf "${INSTALL_DIR}/${APP_NAME}.app"
