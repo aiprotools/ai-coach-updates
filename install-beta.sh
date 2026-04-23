@@ -9,8 +9,10 @@ MOUNT_POINT="${HOME}/.ai_coach_install_mount"
 echo "AI Coach Beta — Installer"
 echo "Lade aktuelle Beta-Version..."
 
+# Filtert explizit nach Tags die "-beta" enthalten
 VERSION=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases" \
-  | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": "\(.*\)".*/\1/')
+  | grep '"tag_name"' | grep '\-beta' | head -1 \
+  | sed 's/.*"tag_name": "\(.*\)".*/\1/')
 if [ -z "$VERSION" ]; then
   echo "Fehler: Konnte Beta-Version nicht ermitteln." >&2
   exit 1
