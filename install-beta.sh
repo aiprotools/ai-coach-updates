@@ -34,6 +34,8 @@ TMP_DMG="/tmp/${DMG_NAME}"
 curl -L --progress-bar "$URL" -o "$TMP_DMG"
 
 echo "Mounte DMG..."
+hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
+rm -rf "$MOUNT_POINT"
 mkdir -p "$MOUNT_POINT"
 hdiutil attach "$TMP_DMG" -nobrowse -noautoopen -mountpoint "$MOUNT_POINT" > /dev/null
 
@@ -47,8 +49,7 @@ echo "Entferne Gatekeeper-Quarantäne..."
 xattr -cr "${INSTALL_DIR}/${APP_NAME}.app"
 
 hdiutil detach "$MOUNT_POINT" -quiet
-rmdir "$MOUNT_POINT"
-rm "$TMP_DMG"
+rm -rf "$MOUNT_POINT" "$TMP_DMG"
 
 echo ""
 echo "✓ AI Coach Beta ${VERSION} wurde erfolgreich installiert."
