@@ -32,14 +32,8 @@ TMP_DMG="/tmp/${DMG_NAME}"
 curl -L --progress-bar "$URL" -o "$TMP_DMG"
 
 echo "Mounte DMG..."
-MOUNT_POINT=$(hdiutil attach "$TMP_DMG" -nobrowse -noautoopen -plist | python3 -c "
-import sys, plistlib
-d = plistlib.load(sys.stdin.buffer)
-for e in d.get('system-entities', []):
-    if 'mount-point' in e:
-        print(e['mount-point'])
-        break
-")
+MOUNT_POINT=$(hdiutil attach "$TMP_DMG" -nobrowse -noautoopen -plist | python3 -c \
+  "import sys,plistlib; d=plistlib.loads(sys.stdin.buffer.read()); [print(e['mount-point']) for e in d.get('system-entities',[]) if 'mount-point' in e]" | head -1)
 
 if [ -z "$MOUNT_POINT" ]; then
   echo "Fehler: DMG konnte nicht gemountet werden." >&2
