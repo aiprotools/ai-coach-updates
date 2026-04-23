@@ -4,6 +4,7 @@ set -e
 REPO="aiprotools/ai-coach-updates"
 INSTALL_DIR="/Applications"
 APP_NAME="AI Coach"
+MOUNT_POINT="/tmp/ai_coach_install_mount"
 
 echo "AI Coach — Installer"
 echo "Lade aktuelle Version..."
@@ -32,15 +33,9 @@ TMP_DMG="/tmp/${DMG_NAME}"
 curl -L --progress-bar "$URL" -o "$TMP_DMG"
 
 echo "Mounte DMG..."
-MOUNT_POINT=$(hdiutil attach "$TMP_DMG" -nobrowse -noautoopen -plist | python3 -c \
-  "import sys,plistlib; d=plistlib.loads(sys.stdin.buffer.read()); [print(e['mount-point']) for e in d.get('system-entities',[]) if 'mount-point' in e]" | head -1)
+mkdir -p "$MOUNT_POINT"
+hdiutil attach "$TMP_DMG" -nobrowse -noautoopen -mountpoint "$MOUNT_POINT" > /dev/null
 
-if [ -z "$MOUNT_POINT" ]; then
-  echo "Fehler: DMG konnte nicht gemountet werden." >&2
-  exit 1
-fi
-
-echo "Gemountet unter: $MOUNT_POINT"
 echo "Installiere nach ${INSTALL_DIR}..."
 if [ -d "${INSTALL_DIR}/${APP_NAME}.app" ]; then
   rm -rf "${INSTALL_DIR}/${APP_NAME}.app"
@@ -51,6 +46,7 @@ echo "Entferne Gatekeeper-Quarantäne..."
 xattr -cr "${INSTALL_DIR}/${APP_NAME}.app"
 
 hdiutil detach "$MOUNT_POINT" -quiet
+rmdir "$MOUNT_POINT"
 rm "$TMP_DMG"
 
 echo ""
