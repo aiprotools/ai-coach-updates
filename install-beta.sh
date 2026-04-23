@@ -26,7 +26,8 @@ else
 fi
 
 VERSION_NUM="${VERSION#v}"
-DMG_NAME="AI.Coach_${VERSION_NUM}_${TAURI_ARCH}.dmg"
+DMG_VERSION=$(echo "$VERSION_NUM" | sed 's/-[a-z].*//')
+DMG_NAME="AI.Coach_${DMG_VERSION}_${TAURI_ARCH}.dmg"
 URL="https://github.com/${REPO}/releases/download/${VERSION}/${DMG_NAME}"
 
 echo "Version: ${VERSION} (${TAURI_ARCH})"
