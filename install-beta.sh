@@ -4,7 +4,7 @@ set -e
 REPO="aiprotools/ai-coach-updates"
 INSTALL_DIR="/Applications"
 APP_NAME="AI Coach"
-MOUNT_POINT="/tmp/ai_coach_install_mount"
+MOUNT_POINT="${HOME}/.ai_coach_install_mount"
 
 echo "AI Coach Beta — Installer"
 echo "Lade aktuelle Beta-Version..."
@@ -30,7 +30,7 @@ URL="https://github.com/${REPO}/releases/download/${VERSION}/${DMG_NAME}"
 echo "Version: ${VERSION} (${TAURI_ARCH})"
 echo "Download: ${URL}"
 
-TMP_DMG="/tmp/${DMG_NAME}"
+TMP_DMG="${HOME}/${DMG_NAME}"
 curl -L --progress-bar "$URL" -o "$TMP_DMG"
 
 echo "Mounte DMG..."
