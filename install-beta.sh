@@ -16,23 +16,22 @@ else
   TAURI_ARCH="x86_64"
 fi
 
-# Find latest beta release tag
-VERSION=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases" \
-  | grep '"tag_name"' | grep '\-beta' | head -1 \
-  | sed 's/.*"tag_name": "\(.*\)".*/\1/')
+# Find latest beta release tag (grep -o only, no sed/python3)
+VERSION=$(curl -sL "https://api.github.com/repos/${REPO}/releases" \
+  | grep -o '"tag_name": *"[^"]*-beta[^"]*"' \
+  | head -1 \
+  | grep -o 'v[0-9][^"]*')
 
 if [ -z "$VERSION" ]; then
   echo "Fehler: Konnte Beta-Version nicht ermitteln." >&2
   exit 1
 fi
 
-# Fetch the specific release and extract the DMG download URL via grep/sed
-URL=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/tags/${VERSION}" \
-  | grep '"browser_download_url"' \
-  | grep "${TAURI_ARCH}" \
-  | grep '\.dmg"' \
+# Fetch specific release and extract DMG URL (grep -o only, no sed/python3)
+URL=$(curl -sL "https://api.github.com/repos/${REPO}/releases/tags/${VERSION}" \
+  | grep -o '"browser_download_url": *"https://[^"]*'"${TAURI_ARCH}"'[^"]*\.dmg"' \
   | head -1 \
-  | sed 's/.*"browser_download_url": "\(.*\)".*/\1/')
+  | grep -o 'https://[^"]*')
 
 if [ -z "$URL" ]; then
   echo "Fehler: Kein passendes DMG-Asset für ${TAURI_ARCH} gefunden." >&2
